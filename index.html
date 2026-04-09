@@ -500,34 +500,28 @@
             saveDataToGoogleSheets(playerName, score, words.length - score);
         }
 
-        function saveDataToGoogleSheets(name, correct, wrong) {
-            if (scriptURL === "여기에_배포된_웹앱_URL을_붙여넣으세요" || !scriptURL) {
-                console.log("웹앱 URL이 설정되지 않아 데이터가 저장되지 않습니다.");
-                return;
-            }
+        const data = new URLSearchParams();
+        data.append('name', name);
+        data.append('correct', correct);
+        data.append('wrong', wrong);
 
-            const data = new URLSearchParams();
-            data.append('name', name);
-            data.append('correct', correct);
-            data.append('wrong', wrong);
+        const originalMsg = resultMessage.textContent;
+        resultMessage.textContent = originalMsg + " (결과 저장 중...)";
 
-            const originalMsg = resultMessage.textContent;
-            resultMessage.textContent = originalMsg + " (결과 저장 중...)";
-
-            // mode: 'no-cors'를 설정하면 프론트에서 CORS 에러 없이 GAS로 데이터 전송 가능
-            fetch(scriptURL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: data
+        // mode: 'no-cors'를 설정하면 프론트에서 CORS 에러 없이 GAS로 데이터 전송 가능
+        fetch(scriptURL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: data
+        })
+            .then(() => {
+                console.log('데이터 전송 완료');
+                resultMessage.textContent = originalMsg + " (결과 저장 완료!)";
             })
-                .then(() => {
-                    console.log('데이터 전송 완료');
-                    resultMessage.textContent = originalMsg + " (결과 저장 완료!)";
-                })
-                .catch(error => {
-                    console.error('Error!', error.message);
-                    resultMessage.textContent = originalMsg + " (결과 저장 실패)";
-                });
+            .catch(error => {
+                console.error('Error!', error.message);
+                resultMessage.textContent = originalMsg + " (결과 저장 실패)";
+            });
         }
 
         function resetGame() {
